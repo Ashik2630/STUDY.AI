@@ -1,0 +1,12 @@
+{
+  "name": "Lumina: AI Learning Assistant",
+  "description": "Transform messy lecture notes into structured study guides, summaries, and weekly trackers using advanced AI.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "AI-powered summarization",
+    "Structured study material generation",
+    "Weekly learning tracking"
+  ]
+}

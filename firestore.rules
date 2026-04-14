@@ -1,0 +1,75 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: lectures
+    // Fields:
+    //   - userId: string (required, immutable)
+    //   - title: string (required)
+    //   - rawContent: string (required)
+    //   - structuredContent: map (required)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: weeklySummaries
+    // Fields:
+    //   - userId: string (required, immutable)
+    //   - weekStartDate: string (required)
+    //   - summary: map (required)
+    //   - lectureIds: list (required)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidLecture(data) {
+      return data.userId is string &&
+             data.title is string && data.title.size() < 200 &&
+             data.rawContent is string && data.rawContent.size() < 50000 &&
+             data.structuredContent is map &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidWeeklySummary(data) {
+      return data.userId is string &&
+             data.weekStartDate is string &&
+             data.summary is map &&
+             data.lectureIds is list &&
+             data.createdAt is timestamp;
+    }
+
+    match /lectures/{lectureId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isOwner(request.resource.data.userId) && isValidLecture(request.resource.data);
+      allow update: if isOwner(resource.data.userId) && 
+                      request.resource.data.userId == resource.data.userId &&
+                      isValidLecture(request.resource.data);
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    match /weeklySummaries/{summaryId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isOwner(request.resource.data.userId) && isValidWeeklySummary(request.resource.data);
+      allow update: if isOwner(resource.data.userId) && 
+                      request.resource.data.userId == resource.data.userId &&
+                      isValidWeeklySummary(request.resource.data);
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}

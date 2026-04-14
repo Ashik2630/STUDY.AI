@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "Lecture": {
+      "title": "Lecture",
+      "description": "A single lecture's notes and its AI-generated study material.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who owns this lecture." },
+        "title": { "type": "string", "description": "Generated title for the lecture." },
+        "rawContent": { "type": "string", "description": "The original unstructured input." },
+        "structuredContent": {
+          "type": "object",
+          "description": "The AI-generated study material.",
+          "properties": {
+            "quickSummary": { "type": "string" },
+            "keyTopics": { "type": "array", "items": { "type": "string" } },
+            "coreConcepts": { "type": "array", "items": { "type": "string" } },
+            "importantExplanations": { "type": "string" },
+            "smartNotes": { "type": "string" },
+            "possibleQuestions": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "rawContent", "structuredContent", "createdAt"]
+    },
+    "WeeklySummary": {
+      "title": "Weekly Summary",
+      "description": "A summary of multiple lectures from a specific week.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "weekStartDate": { "type": "string", "format": "date" },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "weeklySummary": { "type": "string" },
+            "whatILearned": { "type": "array", "items": { "type": "string" } },
+            "coreConcepts": { "type": "array", "items": { "type": "string" } },
+            "weakAreas": { "type": "array", "items": { "type": "string" } },
+            "revisionPlan": { "type": "string" }
+          }
+        },
+        "lectureIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "weekStartDate", "summary", "lectureIds", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/lectures/{lectureId}": {
+      "schema": "Lecture",
+      "description": "Collection of lectures."
+    },
+    "/weeklySummaries/{summaryId}": {
+      "schema": "WeeklySummary",
+      "description": "Collection of weekly summaries."
+    }
+  }
+}
